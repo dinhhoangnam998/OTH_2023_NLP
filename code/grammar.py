@@ -97,7 +97,7 @@ class Grammar:
                 [str(r) if r.lhs != self.start_symbol else "public " + str(r) for r in self.rules])
 
     def is_CNF(self):
-        return all([self._validate_rule(()) for rule in self.rules])
+        return all([self._validate_rule(rule) for rule in self.rules])
 
     def _validate_rule(self, rule: GrammarRule) -> bool:
         lhs, rhs, length = rule.lhs, rule.rhs, len(rule.rhs)
