@@ -92,25 +92,17 @@ class Grammar:
 
     def __repr__(self):
         return "#ABNF V1.0 utf-8\n" + \
-               "language " + self.language + "\n" + \
-               "\n".join(
-                   [str(r) if r.lhs != self.start_symbol else "public " + str(r) for r in self.rules])
+            "language " + self.language + "\n" + \
+            "\n".join(
+                [str(r) if r.lhs != self.start_symbol else "public " + str(r) for r in self.rules])
 
     def is_CNF(self):
-        isValid = True
-        for r in self.rules:
-            lhs = r.lhs
-            rhs = r.rhs
-            if lhs.terminal is True:
-                isValid = False
-                break
-            if len(rhs) != 1 and len(rhs) != 2:
-                isValid = False
-                break
-            if len(rhs) == 1 and rhs[0].terminal == False:
-                isValid = False
-                break
-            if len(rhs) == 2 and (rhs[0].terminal == True or rhs[1].terminal == True):
-                isValid = False
-                break
-        return isValid
+        return all([self._validate_rule(()) for rule in self.rules])
+
+    def _validate_rule(self, rule: GrammarRule) -> bool:
+        lhs, rhs, length = rule.lhs, rule.rhs, len(rule.rhs)
+        if lhs.terminal: return False
+        if length not in (1, 2): return False
+        if length == 1 and not rhs[0].terminal: return False
+        if length == 2 and (rhs[0].terminal or rhs[1].terminal): return False
+        return True
