@@ -1,5 +1,4 @@
 import grammar
-import parse
 import parser
 
 with open("../data/telescope.srgs", "r") as f:
