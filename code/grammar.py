@@ -97,12 +97,21 @@ class Grammar:
                 [str(r) if r.lhs != self.start_symbol else "public " + str(r) for r in self.rules])
 
     def is_CNF(self):
-        return all([self._validate_rule(rule) for rule in self.rules])
+        return all([self._validate_CNF_rule(rule) for rule in self.rules])
 
-    def _validate_rule(self, rule: GrammarRule) -> bool:
+    def _validate_CNF_rule(self, rule: GrammarRule) -> bool:
         lhs, rhs, length = rule.lhs, rule.rhs, len(rule.rhs)
         if lhs.terminal: return False
         if length not in (1, 2): return False
         if length == 1 and not rhs[0].terminal: return False
+        if length == 2 and (rhs[0].terminal or rhs[1].terminal): return False
+        return True
+
+    def is_relaxedCNF(self):
+        return all([self._validate_relaxed_rule(rule) for rule in self.rules])
+    def _validate_relaxed_rule(self, rule: GrammarRule) -> bool:
+        lhs, rhs, length = rule.lhs, rule.rhs, len(rule.rhs)
+        if lhs.terminal: return False
+        if length not in (1, 2): return False
         if length == 2 and (rhs[0].terminal or rhs[1].terminal): return False
         return True
