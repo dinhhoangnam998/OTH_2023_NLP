@@ -142,16 +142,7 @@ class Grammar:
                         _rhs.append(new_s)
                         new_rules.append(GrammarRule(new_s, [s]))
 
-                # if len(_rhs) % 2 == 1:
-                #     last_s = _rhs.pop()
-                #     new_rules.append(GrammarRule(Symbol('$_' + last_s.symbol, False), [last_s]))
-                #
-                # for i in range(0, len(_rhs), 2):
-                #     first, second = _rhs[i], _rhs[i + 1]
-                #     new_rules.append(GrammarRule(Symbol('$_' + first.symbol + second.symbol, False), [first, second]))
-
-                self.split_rule(rule, new_rules)
-
+                self.split_rule(GrammarRule(rule.lhs, _rhs), new_rules)
                 normalized_rules.extend(new_rules)
 
         self.rules = normalized_rules
@@ -161,7 +152,7 @@ class Grammar:
             new_rules.append(rule)
         else:
             left_part, right_part = rule.rhs[0], rule.rhs[1:]
-            new_sym_for_right_part = Symbol("$_" + "".join([sym.symbol for sym in right_part], False))
+            new_sym_for_right_part = Symbol("$_" + "".join([sym.symbol for sym in right_part]), False)
             new_rules.append(GrammarRule(rule.lhs, [left_part, new_sym_for_right_part]))
-            self.split_rule(GrammarRule(new_sym_for_right_part, right_part))
+            self.split_rule(GrammarRule(new_sym_for_right_part, right_part), new_rules)
 

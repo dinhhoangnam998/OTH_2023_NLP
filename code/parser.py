@@ -1,5 +1,6 @@
 from grammar import *
 from parse import *
+from typing import List, Set
 
 
 def is_in_language(words: list, grammar: Grammar) -> bool:
@@ -25,7 +26,10 @@ def parse(words: list, grammar: Grammar) -> list:
     for j in range(n):
         for rule in grammar.rules:
             if [Symbol(words[j])] == rule.rhs:
-                table[0][j].add(ParseTree(rule.lhs, [ParseTree(Symbol(words[j]))]))
+                equivalents = {rule.lhs}
+                add_equivalents(rule.lhs, grammar.rules, equivalents)
+                for e in equivalents:
+                    table[0][j].add(ParseTree(e, [ParseTree(Symbol(words[j]))]))
 
     for i in range(1, n):
         for j in range(n - i):
@@ -40,8 +44,33 @@ def parse(words: list, grammar: Grammar) -> list:
                                     if rule.rhs[1] == right_tree.symbol:
                                         table[i][j].add(ParseTree(rule.lhs, [left_tree, right_tree]))
 
-    # return grammar.start_symbol in [tree.symbol for tree in table[n - 1][0]]
-    return table[n - 1][0]
+            # unary rule:
+            new_table_cell_value = set()
+            for tree in table[i][j]:
+                s = tree.symbol
+                equivalents = {s}
+                add_equivalents(s, grammar.rules, equivalents)
+                for e in equivalents:
+                    new_table_cell_value.add(ParseTree(e, tree.productions))
+            table[i][j] = new_table_cell_value
+
+    # print(table)
+    return list(table[n - 1][0])
+
+
+def add_equivalents(s: Symbol, rules: List[GrammarRule], equivalents: Set[Symbol]):
+    for rule in rules:
+        if len(rule.rhs) == 1 and not rule.rhs[0].terminal:
+            left_symbol, right_symbol = rule.lhs, rule.rhs[0]
+            if left_symbol == s:
+                if right_symbol not in equivalents:
+                    equivalents.add(right_symbol)
+                    add_equivalents(right_symbol, rules, equivalents)
+            elif right_symbol == s:
+                if left_symbol not in equivalents:
+                    equivalents.add(left_symbol)
+                    add_equivalents(left_symbol, rules, equivalents)
+
 
 def example_telescope_parse():
     return \
