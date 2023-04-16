@@ -72,6 +72,23 @@ def add_equivalents(s: Symbol, rules: List[GrammarRule], equivalents: Set[Symbol
                     add_equivalents(left_symbol, rules, equivalents)
 
 
+def de_normalize_tree(tree: ParseTree, ):
+    if len(tree.productions) == 0:
+        return tree
+
+    new_productions = []
+    for node in tree.productions:
+        if node.symbol.original:
+            new_productions.append(de_normalize_tree(node))
+        else:
+            new_productions.extend(de_normalize_tree(node))
+
+    if tree.symbol.original:
+        return ParseTree(tree.symbol, new_productions)
+    else:
+        return new_productions
+
+
 def example_telescope_parse():
     return \
         ParseTree(Symbol("$S"),
